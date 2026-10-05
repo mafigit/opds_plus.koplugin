@@ -4,6 +4,7 @@
 local logger = require("logger")
 local Constants = require("models.constants")
 local Result = require("utils.result")
+local CustomHeaders = require("utils.custom_headers")
 
 local HttpClient = {}
 
@@ -44,6 +45,7 @@ function HttpClient.fetch(url, timeout, maxtime, username, password)
     local request = {
         url      = url,
         method   = "GET",
+        headers  = CustomHeaders.apply(nil, url),
         sink     = maxtime and socketutil.table_sink(sink) or ltn12.sink.table(sink),
         user     = username,
         password = password,

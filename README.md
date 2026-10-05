@@ -219,6 +219,8 @@ Access settings from: **OPDS Plus Catalog → Settings**
 3. Enter:
    - Catalog name
    - OPDS feed URL
+   - Optional: username/password, and custom headers as `Name: value; Other: value`
+     (e.g. `X-Api-Key: abc`). Headers are only sent to the catalog's host.
 4. The new catalog will appear in your catalog list
 
 ## 🔧 Technical Details

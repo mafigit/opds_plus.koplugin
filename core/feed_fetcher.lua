@@ -18,6 +18,7 @@ local Constants = require("models.constants")
 local UrlUtils = require("utils.url_utils")
 local FileUtils = require("utils.file_utils")
 local Result = require("utils.result")
+local CustomHeaders = require("utils.custom_headers")
 
 local FeedFetcher = {}
 
@@ -38,9 +39,9 @@ function FeedFetcher.fetchFeed(item_url, headers_only, username, password)
 	local request = {
 		url      = item_url,
 		method   = headers_only and "HEAD" or "GET",
-		headers  = {
+		headers  = CustomHeaders.apply({
 			["Accept-Encoding"] = "identity",
-		},
+		}, item_url),
 		sink     = ltn12.sink.table(sink),
 		user     = username,
 		password = password,

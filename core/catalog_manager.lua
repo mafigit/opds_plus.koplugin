@@ -26,7 +26,7 @@ end
 -- Add or update a catalog from input fields
 -- @param servers table List of server configurations
 -- @param item_table table Current item table
--- @param fields table Input fields: [1]=title, [2]=url, [3]=username, [4]=password, [5]=raw_names, [6]=sync
+-- @param fields table Input fields: [1]=title, [2]=url, [3]=username, [4]=password, [5]=raw_names, [6]=sync, [7]=headers
 -- @param item table|nil Existing item to update (nil for new)
 -- @param no_refresh boolean Don't refresh item table if true
 -- @return number, number New index, item number for refresh
@@ -38,6 +38,7 @@ function CatalogManager.editCatalogFromInput(servers, item_table, fields, item, 
 		password  = fields[4] ~= "" and fields[4] or nil,
 		raw_names = fields[5],
 		sync      = fields[6],
+		headers   = fields[7],
 	}
 
 	local new_item = CatalogUtils.buildRootEntry(new_server)
@@ -202,6 +203,7 @@ function CatalogManager.exportCatalogs(servers, include_credentials)
 		if include_credentials then
 			catalog.username = server.username
 			catalog.password = server.password
+			catalog.headers = server.headers
 		end
 
 		table.insert(export, catalog)
@@ -240,6 +242,7 @@ function CatalogManager.importCatalogs(servers, import_data, merge_duplicates)
 					url = catalog.url,
 					username = catalog.username,
 					password = catalog.password,
+					headers = catalog.headers,
 					raw_names = catalog.raw_names,
 					sync = catalog.sync,
 				})
@@ -327,6 +330,7 @@ function CatalogManager.duplicateCatalog(server, new_title)
 		url = server.url,
 		username = server.username,
 		password = server.password,
+		headers = server.headers,
 		raw_names = server.raw_names,
 		sync = server.sync,
 		last_download = nil, -- Don't copy sync state

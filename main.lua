@@ -49,6 +49,7 @@ function OPDS:init()
 
     -- Load servers, downloads, and pending syncs
     self.servers = self.opds_settings:readSetting("servers", Constants.DEFAULT_SERVERS)
+    require("utils.custom_headers").setServers(self.servers)
     self.downloads = self.opds_settings:readSetting("downloads", {})
     self.pending_syncs = self.opds_settings:readSetting("pending_syncs", {})
 

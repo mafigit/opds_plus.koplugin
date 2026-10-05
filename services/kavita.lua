@@ -10,6 +10,7 @@ local socketutil = require("socketutil")
 local UIManager = require("ui/uimanager")
 local url = require("socket.url")
 local _ = require("gettext")
+local CustomHeaders = require("utils.custom_headers")
 local T = require("ffi/util").template
 
 local OPDSPSE = {}
@@ -33,10 +34,10 @@ function OPDSPSE:getLastPage(remote_url, username, password)
         auth_code, auth_headers, auth_status = socket.skip(1, http.request {
             method = "POST",
             url         = auth_url,
-            headers     = {
+            headers     = CustomHeaders.apply({
                 ["Accept-Encoding"] = "identity",
                 ["Authentication"] = api_key,
-            },
+            }, auth_url),
             sink        = ltn12.sink.table(auth_data),
             user        = username,
             password    = password,
@@ -58,13 +59,17 @@ function OPDSPSE:getLastPage(remote_url, username, password)
         local progress_data = {}
         local progress_code, progress_headers, progress_status
         if progress_parsed.scheme == "http" or progress_parsed.scheme == "https" then
+            -- Kavita's bearer token must win over any custom Authorization header
+            local request_headers = CustomHeaders.apply({}, progress_url)
+            for name in pairs(request_headers) do
+                if name:lower() == "authorization" then request_headers[name] = nil end
+            end
+            request_headers["Accept-Encoding"] = "identity"
+            request_headers["Authorization"] = "Bearer "..bearer_token
             socketutil:set_timeout(socketutil.FILE_BLOCK_TIMEOUT, socketutil.FILE_TOTAL_TIMEOUT)
             progress_code, progress_headers, progress_status = socket.skip(1, http.request {
                 url         = progress_url,
-                headers     = {
-                    ["Accept-Encoding"] = "identity",
-                    ["Authorization"] = "Bearer "..bearer_token,
-                },
+                headers     = request_headers,
                 sink        = ltn12.sink.table(progress_data),
                 user        = username,
                 password    = password,
@@ -121,9 +126,9 @@ function OPDSPSE:streamPages(remote_url, count, continue, username, password, la
                 socketutil:set_timeout(socketutil.FILE_BLOCK_TIMEOUT, socketutil.FILE_TOTAL_TIMEOUT)
                 code, headers, status = socket.skip(1, http.request {
                     url         = page_url,
-                    headers     = {
+                    headers     = CustomHeaders.apply({
                         ["Accept-Encoding"] = "identity",
-                    },
+                    }, page_url),
                     sink        = ltn12.sink.table(page_data),
                     user        = username,
                     password    = password,

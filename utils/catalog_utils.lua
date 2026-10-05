@@ -8,7 +8,7 @@ local CatalogUtils = {}
 -- @return table Formatted catalog entry
 function CatalogUtils.buildRootEntry(server)
 	local icons = ""
-	if server.username then
+	if server.username or server.headers then
 		icons = "\u{f2c0}" -- Lock icon for authenticated catalogs
 	end
 	if server.sync then
@@ -20,6 +20,7 @@ function CatalogUtils.buildRootEntry(server)
 		url        = server.url,
 		username   = server.username,
 		password   = server.password,
+		headers    = server.headers,
 		raw_names  = server.raw_names,
 		searchable = server.url and server.url:match("%%s") and true or false,
 		sync       = server.sync,

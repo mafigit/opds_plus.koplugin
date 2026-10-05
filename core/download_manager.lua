@@ -21,6 +21,7 @@ local T = require("ffi/util").template
 
 local Constants = require("models.constants")
 local StateManager = require("core.state_manager")
+local CustomHeaders = require("utils.custom_headers")
 
 local DownloadManager = {}
 
@@ -82,9 +83,9 @@ function DownloadManager.downloadFile(browser, local_path, remote_url, username,
 		socketutil:set_timeout(socketutil.FILE_BLOCK_TIMEOUT, socketutil.FILE_TOTAL_TIMEOUT)
 		code, headers, status = socket.skip(1, http.request {
 			url      = remote_url,
-			headers  = {
+			headers  = CustomHeaders.apply({
 				["Accept-Encoding"] = "identity",
-			},
+			}, remote_url),
 			sink     = ltn12.sink.file(io.open(local_path, "w")),
 			user     = username,
 			password = password,

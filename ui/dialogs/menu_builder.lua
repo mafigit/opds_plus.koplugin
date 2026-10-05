@@ -14,6 +14,7 @@ local T = ffiUtil.template
 
 local Constants = require("models.constants")
 local StateManager = require("core.state_manager")
+local CustomHeaders = require("utils.custom_headers")
 
 local OPDSMenuBuilder = {}
 
@@ -251,6 +252,9 @@ function OPDSMenuBuilder.buildCatalogEditDialog(browser, item)
 			hint = _("Password (optional)"),
 			text_type = "password",
 		},
+		{
+			hint = _("Headers (optional), e.g. X-Api-Key: abc; Cookie: a=1"),
+		},
 	}
 
 	local title
@@ -260,6 +264,7 @@ function OPDSMenuBuilder.buildCatalogEditDialog(browser, item)
 		fields[2].text = item.url
 		fields[3].text = item.username
 		fields[4].text = item.password
+		fields[5].text = CustomHeaders.format(item.headers)
 	else
 		title = _("Add OPDS catalog")
 	end
@@ -305,6 +310,7 @@ function OPDSMenuBuilder.buildCatalogEditDialog(browser, item)
 
 						-- Use validated URL
 						new_fields[2] = validated_url_or_error
+						new_fields[7] = CustomHeaders.parse(new_fields[5])
 						new_fields[5] = check_button_raw_names.checked or nil
 						new_fields[6] = check_button_sync_catalog.checked or nil
 						browser:editCatalogFromInput(new_fields, item)
@@ -360,7 +366,9 @@ function OPDSMenuBuilder.buildSubCatalogDialog(browser, item_url)
 								item_url,
 								browser.root_catalog_username,
 								browser.root_catalog_password,
-								browser.root_catalog_raw_names
+								browser.root_catalog_raw_names,
+								nil,
+								CustomHeaders.forUrl(item_url),
 							}
 							browser:editCatalogFromInput(fields, nil, true)
 						end
